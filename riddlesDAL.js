@@ -1,7 +1,7 @@
-import fs from fspromises;
+import fs from "fs/promises";
 
 async function readData(path) {
-    return JSON.parse(await fs.readFile(path, { encoding utf-8 }));
+    return JSON.parse(await fs.readFile(path, "utf-8"));
 }
 
 async function writeData(path, data) {

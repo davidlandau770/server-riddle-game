@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "numberAsc": 1,
+    "name": "Math",
+    "level": "easy",
+    "taskDescription": "What is 5 + 3?",
+    "correctAnswer": "8"
+  },
+  {
+    "id": 2,
+    "numberAsc": 1,
+    "name": "Math",
+    "level": "medium",
+    "taskDescription": "What is 6 * 7?",
+    "correctAnswer": "42"
+  },
+  {
+    "id": 3,
+    "numberAsc": 3,
+    "name": "aaa",
+    "level": "sdfghj?",
+    "taskDescription": "78",
+    "correctAnswer": "78"
+  },
+  {
+    "id": 4,
+    "numberAsc": 4,
+    "name": "bbb",
+    "level": "4",
+    "taskDescription": "wertyui?",
+    "correctAnswer": "778"
+  },
+  {
+    "id": 5,
+    "numberAsc": 5,
+    "name": "ccc",
+    "level": "5",
+    "taskDescription": "sdfgjhjkl?",
+    "correctAnswer": "5778"
+  }
+]
