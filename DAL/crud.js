@@ -10,6 +10,7 @@ async function writeData(path, data) {
     }
     return await fs.writeFile(path, data);
 }
+
 export {
     readData,
     writeData
