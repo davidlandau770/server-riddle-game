@@ -1,23 +1,33 @@
-import http from "http";
-import { getRiddles, addRiddle, updateRiddle, deleteRiddle } from "./service/riddle.services.js";
+import express from "express";
+import { getRiddles, addRiddle, updateRiddle, deleteRiddle, getId } from "./service/riddle.services.js";
 
-const server = http.createServer(async (req, res) => {
-    if (req.method.toUpperCase() === "GET" && req.url === "/riddles") {
-        getRiddles(req, res);
-    } else if (req.method.toUpperCase() === "POST" && req.url === "/riddles/addRiddle") {
-        addRiddle(req, res)
-    } else if (req.method.toUpperCase() === "PUT" && req.url === "/riddles/updateRiddle") {
-        updateRiddle(req, res)
-    } else if (req.method.toUpperCase() === "DELETE" && req.url === "/riddles/deleteRiddle") {
-        deleteRiddle(req, res)
-    } else if (req.url === "/") {
-        res.end("API runing!");
-    } else {
-        res.writeHead(404, { "content-type": "text/plain" });
-        res.end("Page not found!");
-    }
+const app = express()
+app.use(express.json());
+
+app.get('/riddles', (req, res) => {
+    getRiddles(req, res);
 })
 
-server.listen(3007, () => {
-    console.log("Server runing on port: 3007");
+app.post('/riddles/addRiddle', (req, res) => {
+    addRiddle(req, res);
+})
+
+app.put('/riddles/updateRiddle', (req, res) => {
+    updateRiddle(req, res);
+})
+
+app.delete('/riddles/deleteRiddle', (req, res) => {
+    deleteRiddle(req, res);
+})
+
+app.get('/riddles/getId', (req, res) => {
+    getId(req, res);
+})
+
+app.use((req, res) => {
+    res.status(404).send("page is not defound")
+})
+
+app.listen(3000, () => {
+    console.log("Express server running on http://localhost:3000");
 })

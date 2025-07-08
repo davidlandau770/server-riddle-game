@@ -1,57 +1,106 @@
-import { write } from "fs";
-import { readData, writeData } from "../DAL/crud";
+import { readData, writeData } from "../DAL/crud.js";
+
+const path = "./DAL/dbRiddles.txt"
 
 async function getRiddles(req, res) {
     let response;
     try {
-        response = await readData("./dbRiddles.txt");
+        response = await readData(path);
     } catch (err) {
-        res.writeHead(500, { "content-type": "application/json" });
-        res.end(JSON.stringify({ err: "Faild read data." }));
+        return res.status(500).send({ err: "Faild read data." });
     }
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify(response));
+    res.status(200).send(response);
 }
 
 async function addRiddle(req, res) {
     let response;
-    let read;
     try {
-        read = await readData("./dbRiddles.txt");
+        response = await readData(path);
     } catch (err) {
-        res.writeHead(500, { "content-type": "application/json" });
-        res.end(JSON.stringify({ err: "Faild read data." }));
+        return res.status(500).send({ err: "Faild read data." });
     }
-    const body = [];
 
-    req.on("data", chunk => {
-        body.push(chunk);
-    });
+    const newData = req.body;
+    const exists = response.some(riddle => riddle.taskDescription === newData.taskDescription);
 
-    req.on("end", async() => {
-        const dataStr = JSON.parse(Buffer.concat(body).toString());
-        console.log("dataStr:", dataStr);
-        response.push(dataStr)
-        let write;
-        write = await writeData("./dbRiddles.txt", response);
-        
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "The riddle was successfully added!" }));
-    });
+    if (exists) {
+        return res.status(200).send({ message: "The question is exists." })
+    }
+
+    response.push(newData)
+    try {
+        await writeData(path, JSON.stringify(response));
+    } catch (error) {
+        return res.status(500).send({ err: "Faild write data." });
+    }
+    res.status(200).send({ message: "The riddle was successfully added!" });
 }
 
 async function updateRiddle(req, res) {
+    let response;
+    try {
+        response = await readData(path);
+    } catch (err) {
+        res.writeHead(500, { "content-type": "application/json" });
+        return res.end(JSON.stringify({ err: "Faild read data." }));
+    }
 
+    const body = [];
+    req.on("data", chunk => {
+        body.push(chunk);
+    });
+    req.on("end", async () => {
+        const newData = JSON.parse(Buffer.concat(body).toString());
+        let exists = false;
+        for (let i in response) {
+            console.log(response[i]);
+            if (response[i].taskDescription === newData.taskDescription) {
+                exists = true;
+                response[i] = newData;
+                try {
+                    await writeData(path, JSON.stringify(response));
+                } catch (error) {
+                    res.writeHead(500, { "content-type": "application/json" });
+                    return res.end(JSON.stringify({ err: "Faild write data." }));
+                }
+                res.writeHead(200, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ message: "The riddle was successfully update!" }));
+            }
+        }
+        if (!exists) {
+            res.writeHead(501, { "content-type": "application/json" });
+            res.end(JSON.stringify({ err: "The task is exists." }));
+        }
+    });
 }
 
 async function deleteRiddle(req, res) {
 
 }
 
+async function getId(req, res) {
+    let riddles;
+    try {
+        riddles = await readData(path);
+    } catch (err) {
+        res.writeHead(500, { "content-type": "application/json" });
+        return res.end(JSON.stringify({ err: "Faild read data." }));
+    }
+
+    let maxId = riddles.length ? riddles[0].id : 0;
+    riddles.forEach(riddle => {
+        if (riddle.id > maxId) {
+            maxId = riddle.id;
+        }
+    });
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(Number(maxId) + 1));
+}
 
 export {
     getRiddles,
     addRiddle,
     updateRiddle,
-    deleteRiddle
+    deleteRiddle,
+    getId
 }

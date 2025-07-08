@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidlandau770/server---riddle-game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davidlandau770/server---riddle-game/issues"
+  },
+  "homepage": "https://github.com/davidlandau770/server---riddle-game#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
