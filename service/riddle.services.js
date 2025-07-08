@@ -24,7 +24,7 @@ async function addRiddle(req, res) {
     const exists = response.some(riddle => riddle.taskDescription === newData.taskDescription);
 
     if (exists) {
-        return res.status(200).send({ message: "The question is exists." })
+        return res.status(201).send({ message: "The question is exists." })
     }
 
     response.push(newData)
@@ -41,41 +41,56 @@ async function updateRiddle(req, res) {
     try {
         response = await readData(path);
     } catch (err) {
-        res.writeHead(500, { "content-type": "application/json" });
-        return res.end(JSON.stringify({ err: "Faild read data." }));
+        return res.status(500).send({ err: "Faild read data." });
     }
-
-    const body = [];
-    req.on("data", chunk => {
-        body.push(chunk);
-    });
-    req.on("end", async () => {
-        const newData = JSON.parse(Buffer.concat(body).toString());
-        let exists = false;
-        for (let i in response) {
-            console.log(response[i]);
-            if (response[i].taskDescription === newData.taskDescription) {
-                exists = true;
-                response[i] = newData;
-                try {
-                    await writeData(path, JSON.stringify(response));
-                } catch (error) {
-                    res.writeHead(500, { "content-type": "application/json" });
-                    return res.end(JSON.stringify({ err: "Faild write data." }));
-                }
-                res.writeHead(200, { "Content-Type": "application/json" });
-                return res.end(JSON.stringify({ message: "The riddle was successfully update!" }));
+    const newData = req.body;
+    
+    let exists = false;
+    for (let i of response) {
+        if (i.id.toString() === newData.id) {
+            
+            exists = true;
+            i.taskDescription = newData.taskDescription;
+            i.correctAnswer = newData.correctAnswer;
+            try {
+                await writeData(path, response);
+            } catch (error) {
+                return res.status(500).end({ err: "Faild write data." });
             }
+            res.status(201).send({ message: "The riddle was successfully update!" });
         }
-        if (!exists) {
-            res.writeHead(501, { "content-type": "application/json" });
-            res.end(JSON.stringify({ err: "The task is exists." }));
-        }
-    });
+    }
+    if (!exists) {
+        res.status(501).send({ err: "The task is not exists." });
+    }
 }
 
 async function deleteRiddle(req, res) {
-
+    let response;
+    try {
+        response = await readData(path);
+    } catch (err) {
+        return res.status(500).send({ err: "Faild read data." });
+    }
+    const newData = req.body;
+    // console.log(response, newData);
+    
+    let exists = false;
+    for (let i in response) {
+        if (response[i].id.toString() === newData.id) {
+            exists = true;
+            response.splice(i, 1)
+            try {
+                await writeData(path, response);
+            } catch (error) {
+                return res.status(500).end({ err: "Faild write data." });
+            }
+            res.status(200).send({ message: "The riddle was successfully update!" });
+        }
+    }
+    if (!exists) {
+        res.status(501).send({ err: "The task is not exists." });
+    }
 }
 
 async function getId(req, res) {
