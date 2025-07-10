@@ -78,7 +78,7 @@ const deleteRiddle = async (req, res) => {
     
     let exists = false;
     for (let i in response) {
-        if (response[i].id === newData.id) {
+        if (response[i].id.toString() === newData.id) {
             exists = true;
             response.splice(i, 1)
             try {
