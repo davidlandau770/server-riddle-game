@@ -1,5 +1,7 @@
 import express from "express";
 import { configRoutes } from "./routes/configRoutes.js";
+// import { config } from "dotenv";
+// config();
 
 const PORT = process.env.PORT;
 const app = express()
