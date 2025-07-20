@@ -5,7 +5,7 @@ const players = express.Router();
 
 players.get('/', getPlayers);
 players.post('/addPlayer', addPlayer);
-players.put('/updatePlayer', updatePlayer);
+players.put('/updatePlayer/:id', updatePlayer);
 
 export {
     players

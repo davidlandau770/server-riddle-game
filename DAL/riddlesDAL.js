@@ -12,7 +12,6 @@ const addRiddleDB = async (data) => {
 
 const updateRiddleDB = async (id, data) => {
     const db = await connectToMongodb();
-    console.log(data);
     return db.collection('riddles').updateOne(
         { id: id },
         { $set: data }
