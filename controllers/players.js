@@ -1,7 +1,5 @@
 import { addPlayerDB, getPlayersDB, updatePlayerDB } from "../DAL/playersDAL.js";
 
-const dbPath = "./DAL/dbPlayers.txt";
-
 const getPlayers = async (req, res) => {
     let response;
     try {
@@ -41,23 +39,17 @@ const updatePlayer = async (req, res) => {
         return res.status(500).send({ err: "Failed read data." });
     }
     const data = req.body;
-    const id = req.params.id;
-    let numId;
-    if (Number(id)) {
-        numId = Number(id);
-    } else {
-        return res.status(500).send({ err: "id is invalid." });
-    }
+    const name = req.params.name;
     let exists = false;
     for (let i of response) {
-        if (i.id === numId) {
+        if (i.username === name) {
             exists = true;
-            i.best_time = data.best_time;
             try {
-                await updatePlayerDB(numId, data);
+                await updatePlayerDB(name, data.best_time);
             } catch (error) {
-                return res.status(500).end({ err: "Failed write data." });
+                return res.status(500).send({ err: "Failed write data." });
             }
+            console.log(name, i.best_time);
             res.status(201).send({ message: "The player was successfully updated!" });
         }
     }
