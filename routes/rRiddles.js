@@ -5,8 +5,8 @@ const riddles = express.Router();
 
 riddles.get('/', getRiddles);
 riddles.post('/addRiddle', addRiddle);
-riddles.put('/updateRiddle', updateRiddle);
-riddles.delete('/deleteRiddle', deleteRiddle);
+riddles.put('/updateRiddle/:id', updateRiddle);
+riddles.delete('/deleteRiddle/:id', deleteRiddle);
 
 export {
     riddles

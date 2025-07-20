@@ -1,11 +1,9 @@
-import { readData, writeData } from "../DAL/fs.read-write.js"
+import { addRiddleDB, deleteRiddleDB, getRiddlesDB, updateRiddleDB } from "../DAL/riddlesDAL.js";
 
-const dbPath = "./DAL/dbRiddles.txt";
-
-const getRiddles = async (req, res) => {    
+const getRiddles = async (req, res) => {
     let response;
     try {
-        response = await readData(dbPath);
+        response = await getRiddlesDB();
     } catch (err) {
         return res.status(500).send({ err: "Failed read data." });
     }
@@ -15,47 +13,58 @@ const getRiddles = async (req, res) => {
 const addRiddle = async (req, res) => {
     let response;
     try {
-        response = await readData(dbPath);
+        response = await getRiddlesDB();
     } catch (err) {
         return res.status(500).send({ err: "Failed read data." });
     }
     const data = req.body;
-
-    const maxId = Math.max(...response.map(riddle => riddle.id)) || 0;
-    const newData = { id: Number(maxId) + 1, ...data};
-    
-    const exists = response.some(riddle => riddle.taskDescription === newData.taskDescription && riddle.correctAnswer === newData.correctAnswer);
-    if (exists) {
-        return res.status(201).send({ message: "The question already exists." });
+    const existsId = response.some(riddle => riddle.id === data.id);
+    if (existsId) {
+        return res.status(200).send({ message: "The id already exists." });
     }
 
-    response.push(newData);
-    
+    let maxId = Math.max(...response.map(riddle => riddle.id), 0);
+    const newData = { id: Number(maxId) + 1, ...data };
+
+    const existsQ = response.some(riddle => riddle.taskDescription === newData.taskDescription && riddle.correctAnswer === newData.correctAnswer);
+    if (existsQ) {
+        return res.status(200).send({ message: "The question already exists." });
+    }
+
     try {
-        await writeData(dbPath, response);
+        await addRiddleDB(newData);
     } catch (error) {
         return res.status(500).send({ err: "Failed write data." });
     }
-    res.status(200).send({ message: "The riddle was successfully added!" });
+    res.status(201).send({ message: "The riddle was successfully added!" });
 }
 
 const updateRiddle = async (req, res) => {
     let response;
     try {
-        response = await readData(dbPath);
+        response = await getRiddlesDB();
     } catch (err) {
         return res.status(500).send({ err: "Failed read data." });
     }
-    const newData = req.body;
-    
+    const data = req.body;
+    const id = req.params.id;
+    let numId;
+    if (Number(id)) {
+        numId = Number(id);
+    } else {
+        return res.status(500).send({ err: "id is invalid." });
+    }
     let exists = false;
     for (let i of response) {
-        if (i.id === newData.id) {
+        if (i.id === numId) {
             exists = true;
-            i.taskDescription = newData.taskDescription;
-            i.correctAnswer = newData.correctAnswer;
+            i.numberAsc = data.numberAsc != undefined ? data.numberAsc : "";
+            i.name = data.name != undefined ? data.name : "";
+            i.level = data.level != undefined ? data.level : "";
+            i.taskDescription = data.taskDescription != undefined ? data.taskDescription : "";
+            i.correctAnswer = data.correctAnswer != undefined ? data.correctAnswer : "";
             try {
-                await writeData(dbPath, response);
+                await updateRiddleDB(numId, i);
             } catch (error) {
                 return res.status(500).end({ err: "Failed write data." });
             }
@@ -70,21 +79,25 @@ const updateRiddle = async (req, res) => {
 const deleteRiddle = async (req, res) => {
     let response;
     try {
-        response = await readData(dbPath);
+        response = await getRiddlesDB();
     } catch (err) {
         return res.status(500).send({ err: "Failed read data." });
     }
-    const newData = req.body;
-    
+    const id = req.params.id;
+    let numId;
+    if (Number(id)) {
+        numId = Number(id);
+    } else {
+        return res.status(500).send({ err: "id is invalid." });
+    }
     let exists = false;
-    for (let i in response) {
-        if (response[i].id.toString() === newData.id) {
+    for (let i of response) {
+        if (i.id === numId) {
             exists = true;
-            response.splice(i, 1)
             try {
-                await writeData(dbPath, response);
+                await deleteRiddleDB(numId);
             } catch (error) {
-                return res.status(500).end({ err: "Failed write data." });
+                return res.status(500).send({ err: "Failed write data." });
             }
             res.status(200).send({ message: "The riddle was successfully updated!" });
         }
